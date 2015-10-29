@@ -3,6 +3,8 @@ require("RCurl")
 require(ggplot2)
 require(dplyr)
 
+df<-read.csv("Wine.csv")
+
 # The following is equivalent to KPI Story 2 Sheet 2 and Parameters Story 3 in "Crosstabs, KPIs, Barchart.twb"
 
 # These will be made to more resemble Tableau Parameters when we study Shiny.
@@ -27,27 +29,27 @@ order by clarity;"
 
 # df <- diamonds %>% group_by(color, clarity) %>% summarize(sum_price = sum(price), sum_carat = sum(carat)) %>% mutate(ratio = sum_price / sum_carat) %>% mutate(kpi = ifelse(ratio <= KPI_Low_Max_value, '03 Low', ifelse(ratio <= KPI_Medium_Max_value, '02 Medium', '01 High'))) %>% rename(COLOR=color, CLARITY=clarity, SUM_PRICE=sum_price, SUM_CARAT=sum_carat, RATIO=ratio, KPI=kpi)
 
-spread(df, COLOR, SUM_PRICE) %>% View
+spread(df, pH, density) %>% View
 
 ggplot() + 
   coord_cartesian() + 
-  scale_x_discrete() +
-  scale_y_discrete() +
-  labs(title='Diamonds Crosstab\nSUM_PRICE, SUM_CARAT, SUM_PRICE / SUM_CARAT') +
-  labs(x=paste("COLOR"), y=paste("CLARITY")) +
+  scale_x_continuous() +
+  scale_y_continuous() +
+  labs(title='temp') +
+  labs(x=paste("density"), y=paste("alcohol")) +
   layer(data=df, 
-        mapping=aes(x=COLOR, y=CLARITY, label=SUM_PRICE), 
+        mapping=aes(x=density, y=alcohol, label = alcohol), 
         stat="identity", 
         stat_params=list(), 
-        geom="text",
+        geom="point",
         geom_params=list(colour="black"), 
         position=position_identity()
   ) +
   layer(data=df, 
-        mapping=aes(x=COLOR, y=CLARITY, label=SUM_CARAT), 
+        mapping=aes(x=quality, y=CLARITY, label=SUM_CARAT), 
         stat="identity", 
         stat_params=list(), 
-        geom="text",
+        geom="bar",
         geom_params=list(colour="black", vjust=2), 
         position=position_identity()
   ) +
@@ -73,7 +75,7 @@ ggplot() +
 wine <- data.frame(fromJSON(getURL(URLencode(gsub("\n", " ",'129.152.144.84:5001/rest/native/?query=
 "select color, clarity, sum_price, round(sum_carat) as sum_carat, kpi as ratio, 
 "select color, clarity, avg_price, 
-avg(avg_price) 
+avg(avg_alcohol) 
 OVER (PARTITION BY clarity ) as window_avg_price
 from (select color, clarity, avg(price) avg_price
    from diamonds
@@ -92,10 +94,10 @@ ggplot() +
   scale_x_discrete() +
   scale_y_continuous() +
   facet_wrap(~CLARITY, ncol=1) +
-  labs(title='Diamonds Barchart\nAVERAGE_PRICE, WINDOW_AVG_PRICE, ') +
-  labs(x=paste("COLOR"), y=paste("AVG_PRICE")) +
+  labs(title='quality vs avg_alcohol ') +
+  labs(x=paste("quality"), y=paste("avg_alcohol")) +
   layer(data=df, 
-        mapping=aes(x=COLOR, y=AVG_PRICE), 
+        mapping=aes(x=quality, y=avg_alcohol), 
         stat="identity", 
         stat_params=list(), 
         geom="bar",
