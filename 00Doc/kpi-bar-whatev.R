@@ -9,22 +9,52 @@ require(dplyr)
 KPI_Low_Max_value = 0.05    
 KPI_Medium_Max_value = 0.14
 
-df <- data.frame(fromJSON(getURL(URLencode(gsub("\n", " ", 'skipper.cs.utexas.edu:5001/rest/native/?query=
-                                                "select PH, QUALITY, sum_CITRIC_ACID, round(sum_RESIDUAL_SUGAR) as sum_residual_sugar, kpi as ratio, 
-                                                case
-                                                when kpi < "p1" then \\\'03 Low\\\'
-                                                when kpi < "p2" then \\\'02 Medium\\\'
-                                                else \\\'01 High\\\'
-                                                end kpi
-                                                from (select PH, QUALITY, 
-                                                sum(CITRIC_ACID) as sum_CITRIC_ACID, sum(RESIDUAL_SUGAR) as sum_RESIDUAL_SUGAR, 
-                                                sum(CITRIC_ACID) / sum(RESIDUAL_SUGAR) as kpi
-                                                from dataset
-                                                group by PH, QUALITY)
-                                                order by QUALITY;"
-                                                ')), httPHeader=c(DB='jdbc:oracle:thin:@sayonara.microlab.cs.utexas.edu:1521:orcl', USER='C##cs329e_pn4322', PASS='orcl_pn4322', MODE='native_mode', MODEL='model', returnDimensions = 'False', returnFor = 'JSON', p1=KPI_Low_Max_value, p2=KPI_Medium_Max_value), verbose = TRUE))); View(df)
+#Scatterplot 
+
+df <- data.frame(fromJSON(getURL(URLencode(gsub("\n", " ", 'skipper.cs.utexas.edu:5001/rest/native/?query="select * from DataSet"')), httPHeader=c(DB='jdbc:oracle:thin:@sayonara.microlab.cs.utexas.edu:1521:orcl', USER='C##cs329e_pn4322', PASS='orcl_pn4322', MODE='native_mode', MODEL='model', returnDimensions = 'False', returnFor = 'JSON', p1=KPI_Low_Max_value, p2=KPI_Medium_Max_value), verbose = TRUE))); 
+View(df)
+
+
+#Scatterplot plot
+
+ggplot() + 
+  coord_cartesian() + 
+  scale_x_continuous() +
+  scale_y_continuous() +
+  labs(title='Wine Scatter Plot') +
+  labs(x="ALCOHOL", y=paste("DENSITY")) +
+  layer(data=df, 
+        mapping=aes(x=ALCOHOL, y=DENSITY), 
+        stat="identity", 
+        stat_params=list(color="blue"), 
+        geom="point",
+        geom_params=list(color="blue"), 
+        #position=position_identity()
+        position=position_jitter(width=0.3, height=0)
+  )
+
+
+
+#Crosstab
+
+df <- data.frame(fromJSON(getURL(URLencode(gsub("\n", " ", 'skipper.cs.utexas.edu:5001/rest/native/?query="select PH, QUALITY, sum_CITRIC_ACID, round(sum_RESIDUAL_SUGAR) as sum_residual_sugar, kpi as ratio, 
+case
+when kpi < "p1" then \\\'03 Low\\\'
+when kpi < "p2" then \\\'02 Medium\\\'
+else \\\'01 High\\\'
+end kpi
+from (select PH, QUALITY, 
+  sum(CITRIC_ACID) as sum_CITRIC_ACID, sum(RESIDUAL_SUGAR) as sum_RESIDUAL_SUGAR, 
+  sum(CITRIC_ACID) / sum(RESIDUAL_SUGAR) as kpi
+  from dataset
+  group by PH, QUALITY)
+  order by QUALITY;"
+')), httPHeader=c(DB='jdbc:oracle:thin:@sayonara.microlab.cs.utexas.edu:1521:orcl', USER='C##cs329e_pn4322', PASS='orcl_pn4322', MODE='native_mode', MODEL='model', returnDimensions = 'False', returnFor = 'JSON', p1=KPI_Low_Max_value, p2=KPI_Medium_Max_value), verbose = TRUE))); View(df)
 
 spread(df, PH, sum_CITRIC_ACID) %>% View
+
+
+#Crosstab plot
 
 ggplot() + 
   coord_cartesian() + 
@@ -64,3 +94,4 @@ ggplot() +
         geom_params=list(alpha=0.5), 
         position=position_identity()
   )
+
