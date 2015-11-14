@@ -24,20 +24,11 @@ To reproduce the crosstab table of Tableau, graph one dimensional variable for b
 
 To reproduce the crosstab table in R, select variable names to the variables used in Tableau, such as pH, Quality, sum of Citric acid, sum of residual sugar, and KPI. The graph produced by R has to be zoomed to see the pH, Quality, sum of Citric Acid, and sum of residual sugar in text format.  
 
-```{r}
-source("../03RSQLVisualizations/RVisualizations.R", echo = TRUE)
-```
-
 To reproduce the Bar chart in R, select variable names to the variables used in Tableau, such as quality, pH, and average alcohol content. 
-
-
-```{r}
-source("../03RSQLVisualizations/RVisualizations.R", echo = TRUE)
-```
 
 To reproduce the scatterplot in R, select variable names to the variables used in Tableau, such as alcohol for the X axis and Density for the Y axis.
 
+
 ```{r}
 source("../03RSQLVisualizations/RVisualizations.R", echo = TRUE)
 ```
-

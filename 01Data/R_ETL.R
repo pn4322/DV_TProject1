@@ -2,8 +2,7 @@ require(tidyr)
 require(dplyr)
 require(ggplot2)
 
-
-file_path <- "DataSet.csv"
+file_path <- "DataSet.reformatted.csv"
 
 df <- read.csv(file_path, stringsAsFactors = FALSE)
 
@@ -66,3 +65,4 @@ if( length(measures) > 1 || ! is.na(measures)) {
 }
 sql <- paste(sql, ");")
 cat(sql)
+
