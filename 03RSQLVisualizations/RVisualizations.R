@@ -2,6 +2,7 @@ require("jsonlite")
 require("RCurl")
 require(ggplot2)
 require(dplyr)
+require(tidyr)
 
 # The following is equivalent to KPI Story 2 Sheet 2 and Parameters Story 3 in "Crosstabs, KPIs, Barchart.twb"
 
@@ -51,8 +52,6 @@ from (select PH, QUALITY,
   order by QUALITY;"
 ')), httPHeader=c(DB='jdbc:oracle:thin:@sayonara.microlab.cs.utexas.edu:1521:orcl', USER='C##cs329e_pn4322', PASS='orcl_pn4322', MODE='native_mode', MODEL='model', returnDimensions = 'False', returnFor = 'JSON', p1=KPI_Low_Max_value, p2=KPI_Medium_Max_value), verbose = TRUE))); View(df)
 
-spread(df, PH, sum_CITRIC_ACID) %>% View
-
 
 #Crosstab plot
 
@@ -95,3 +94,64 @@ ggplot() +
         position=position_identity()
   )
 
+#Bar chart
+df <- data.frame(fromJSON(getURL(URLencode(gsub("\n", " ", 'skipper.cs.utexas.edu:5001/rest/native/?query=
+                                                "select QUALITY, PH, AVG_ALCOHOL, 
+                                                avg(AVG_ALCOHOL) 
+                                                OVER (PARTITION BY PH ) as window_AVG_ALCOHOL
+                                                from (select QUALITY, PH, avg(Alcohol) AVG_ALCOHOL
+                                                from dataset
+                                                group by QUALITY, PH)
+                                                order by PH;"
+                                                ')), httpheader=c(DB='jdbc:oracle:thin:@sayonara.microlab.cs.utexas.edu:1521:orcl', USER='C##cs329e_pn4322', PASS='orcl_pn4322', MODE='native_mode', MODEL='model', returnDimensions = 'False', returnFor = 'JSON', p1=KPI_Low_Max_value, p2=KPI_Medium_Max_value), verbose = TRUE))); View(df)
+
+# df <- diamonds %>% group_by(QUALITY, PH) %>% summarize(AVG_ALCOHOL = mean(Alcohol)) %>% rename(QUALITY=QUALITY, PH=PH)
+# df1 <- df %>% ungroup %>% group_by(PH) %>% summarize(WINDOW_AVG_ALCOHOL=mean(AVG_ALCOHOL))
+# df <- inner_join(df, df1, by="PH")
+
+spread(df, QUALITY, AVG_ALCOHOL) %>% View
+
+ggplot() + 
+  coord_cartesian() + 
+  scale_x_discrete() +
+  scale_y_continuous() +
+  facet_wrap(~PH, ncol=1) +
+  labs(title='Diamonds Barchart\nAVERAGE_Alcohol, WINDOW_AVG_ALCOHOL, ') +
+  labs(x=paste("QUALITY"), y=paste("AVG_ALCOHOL")) +
+  layer(data=df, 
+        mapping=aes(x=QUALITY, y=AVG_ALCOHOL), 
+        stat="identity", 
+        stat_params=list(), 
+        geom="bar",
+        geom_params=list(colour="blue"), 
+        position=position_identity()
+  ) + coord_flip() +
+  layer(data=df, 
+        mapping=aes(x=QUALITY, y=AVG_ALCOHOL, label=round(AVG_ALCOHOL)), 
+        stat="identity", 
+        stat_params=list(), 
+        geom="text",
+        geom_params=list(colour="black", hjust=-0.5), 
+        position=position_identity()
+  ) +
+  layer(data=df, 
+        mapping=aes(x=QUALITY, y=AVG_ALCOHOL, label=round(WINDOW_AVG_ALCOHOL)), 
+        stat="identity", 
+        stat_params=list(), 
+        geom="text",
+        geom_params=list(colour="black", hjust=-2), 
+        position=position_identity()
+  ) +
+  layer(data=df, 
+        mapping=aes(x=QUALITY, y=AVG_ALCOHOL, label=round(AVG_ALCOHOL - WINDOW_AVG_ALCOHOL)), 
+        stat="identity", 
+        stat_params=list(), 
+        geom="text",
+        geom_params=list(colour="black", hjust=-5), 
+        position=position_identity()
+  ) +
+  layer(data=df, 
+        mapping=aes(yintercept = WINDOW_AVG_ALCOHOL), 
+        geom="hline",
+        geom_params=list(colour="red")
+  ) 

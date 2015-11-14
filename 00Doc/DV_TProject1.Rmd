@@ -21,3 +21,23 @@ To reproduce the bar graph of Tableau, graph two dimensional variables in rows a
 To reproduce the crosstab table of Tableau, graph one dimensional variable for both the rows and columns of Tableau, specifically quality in rows and pH levels in columns. The key performance indicator (KPI) that we analyzed was Citric Acid / Sugar levels. This can show how sour or sweet a particular white wine tastes. The numbers shown are the citric acid level, residual sugar level, and the KPI of a particular wine with specific PH and quality levels. The colors help show if a partciular wine with those characteristics have a high, low, or medium KPI. A high KPI shows that a wine is more sour, a low kPI shows that a wine is more sweet, and a medium KPI shows a good balance between sweet and sour.
 
 ![](./Crosstab.jpeg)  
+
+To reproduce the crosstab table in R, select variable names to the variables used in Tableau, such as pH, Quality, sum of Citric acid, sum of residual sugar, and KPI. The graph produced by R has to be zoomed to see the pH, Quality, sum of Citric Acid, and sum of residual sugar in text format.  
+
+```{r}
+source("../03RSQLVisualizations/RVisualizations.R", echo = TRUE)
+```
+
+To reproduce the Bar chart in R, select variable names to the variables used in Tableau, such as quality, pH, and average alcohol content. 
+
+
+```{r}
+source("../03RSQLVisualizations/RVisualizations.R", echo = TRUE)
+```
+
+To reproduce the scatterplot in R, select variable names to the variables used in Tableau, such as alcohol for the X axis and Density for the Y axis.
+
+```{r}
+source("../03RSQLVisualizations/RVisualizations.R", echo = TRUE)
+```
+
